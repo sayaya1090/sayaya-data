@@ -14,11 +14,15 @@ import java.util.Map;
 
 public class Holder {
     private final static Map<Class<?>, Observable<?>> observables = new HashMap<>();
-    public static <V> void createSingle(Class<V> clazz) {
-        create(clazz, new ObservableSingleImpl<V>());
+    public static <V> ObservableSingle<V> createSingle(Class<V> clazz) {
+        var instance = new ObservableSingleImpl<V>();
+        create(clazz, instance);
+        return instance;
     }
-    public static <V> void createMany(Class<V> clazz) {
-        create(clazz, new ObservableManyImpl<V>());
+    public static <V> ObservableMany<V> createMany(Class<V> clazz) {
+        var instance = new ObservableManyImpl<V>();
+        create(clazz, instance);
+        return instance;
     }
     private static <V, T extends Observable<?>> void create(Class<V> clazz, T observable) {
         if(observables.containsKey(clazz)) throw new RuntimeException("Already exists exception:" + clazz);
