@@ -14,36 +14,33 @@ import java.util.Map;
 
 @SuppressWarnings("unchecked")
 public class Holder {
-    private final static Map<Class<?>, Observable<?>> observables = new HashMap<>();
-    public static <V> ObservableSingle<V> createSingle(Class<V> clazz) {
-        var instance = new ObservableSingleImpl<V>();
-        create(clazz, instance);
-        return instance;
+    private final static Map<String, Observable<?>> observables = new HashMap<>();
+    public static <V> ObservableSingle<V> createSingle(String key) {
+        return create(key, new ObservableSingleImpl<V>());
     }
-    public static <V> ObservableMany<V> createMany(Class<V> clazz) {
-        var instance = new ObservableManyImpl<V>();
-        create(clazz, instance);
-        return instance;
+    public static <V> ObservableMany<V> createMany(String key) {
+        return create(key, new ObservableManyImpl<V>());
     }
-    private static <V, T extends Observable<?>> void create(Class<V> clazz, T observable) {
-        if(observables.containsKey(clazz)) throw new RuntimeException("Already exists exception:" + clazz);
+    private static <T extends Observable<?>> T create(String key, T observable) {
+        if(observables.containsKey(key)) throw new RuntimeException("Already exists exception:" + key);
         T proxy = Proxy.make(observable);
-        observables.put(clazz, proxy);
+        observables.put(key, proxy);
+        return proxy;
     }
-    public static <V> Observable<V> any(Class<V> clazz) {
-        if(observables.containsKey(clazz)) return (Observable<V>) observables.get(clazz);
+    public static <V> Observable<V> any(String key) {
+        if(observables.containsKey(key)) return (Observable<V>) observables.get(key);
         return null;
     }
-    public static <V> ObservableSingle<V> single(Class<V> clazz) {
-        if(observables.containsKey(clazz)) {
-            var observable = observables.get(clazz);
+    public static <V> ObservableSingle<V> single(String key) {
+        if(observables.containsKey(key)) {
+            var observable = observables.get(key);
             if(observable instanceof ObservableSingle<?>) return (ObservableSingle<V>) observable;
         }
         return null;
     }
-    public static <V> ObservableMany<V> many(Class<V> clazz) {
-        if(observables.containsKey(clazz)) {
-            var observable = observables.get(clazz);
+    public static <V> ObservableMany<V> many(String key) {
+        if(observables.containsKey(key)) {
+            var observable = observables.get(key);
             if(observable instanceof ObservableMany<?>) return (ObservableMany<V>) observable;
         }
         return null;
