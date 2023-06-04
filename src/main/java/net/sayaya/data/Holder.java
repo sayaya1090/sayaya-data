@@ -12,6 +12,7 @@ import org.gwtproject.event.shared.HandlerRegistration;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("unchecked")
 public class Holder {
     private final static Map<Class<?>, Observable<?>> observables = new HashMap<>();
     public static <V> ObservableSingle<V> createSingle(Class<V> clazz) {
@@ -29,12 +30,10 @@ public class Holder {
         T proxy = Proxy.make(observable);
         observables.put(clazz, proxy);
     }
-    @SuppressWarnings("unchecked")
     public static <V> Observable<V> any(Class<V> clazz) {
         if(observables.containsKey(clazz)) return (Observable<V>) observables.get(clazz);
         return null;
     }
-    @SuppressWarnings("unchecked")
     public static <V> ObservableSingle<V> single(Class<V> clazz) {
         if(observables.containsKey(clazz)) {
             var observable = observables.get(clazz);
@@ -42,7 +41,6 @@ public class Holder {
         }
         return null;
     }
-    @SuppressWarnings("unchecked")
     public static <V> ObservableMany<V> many(Class<V> clazz) {
         if(observables.containsKey(clazz)) {
             var observable = observables.get(clazz);
@@ -73,7 +71,6 @@ public class Holder {
         }
         @Override @JsMethod
         public HandlerRegistration onValueChange(ValueChangeEventListener<T> listener) {
-            //noinspection unchecked
             valueChangeListeners.push(listener);
             return () -> valueChangeListeners.delete(valueChangeListeners.asList().indexOf(listener));
         }
@@ -95,6 +92,10 @@ public class Holder {
         public T[] value() {
             return values.reverse();
         }
+        @Override @JsMethod(name="setValue")
+        public void value(T[] values) {
+            this.values = JsArray.of(values);
+        }
         @Override
         public void add(T value) {
             values.push(value);
@@ -105,7 +106,6 @@ public class Holder {
         }
         @Override @JsMethod
         public HandlerRegistration onValueChange(ValueChangeEventListener<T[]> listener) {
-            //noinspection unchecked
             valueChangeListeners.push(listener);
             return () -> valueChangeListeners.delete(valueChangeListeners.asList().indexOf(listener));
         }
